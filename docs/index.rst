@@ -6,7 +6,7 @@ Welcome to the documentation for the Aristotle Metadata Registry!
 Below is a list of help topics available within this documentation. If you are unsure of where to begin, start at :doc:`./meta/index` for help on how to read these help pages effectively.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :caption: Contents:
    
    overview/index.rst
@@ -29,5 +29,4 @@ Indices and tables
    full_index.rst
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

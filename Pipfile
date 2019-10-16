@@ -4,21 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = ">=2.4.1"
-selenium-requests = "*"
-selenium = "*"
 sphinx-autobuild = "*"
 solar-theme = "*"
 sphinxcontrib-fulltoc = "*"
 sphinxcontrib-rawfiles = "*"
-sphinx-selenium-screenshots = {ref = "develop", git = "git://github.com/LegoStormtroopr/sphinx-selenium-screenshots.git"}
 aristotle-docs-theme = {path = "./python/docs_conf_and_theme", editable = true}
 Pillow = "*"
-Sphinx = "==1.7.1"
+Sphinx = "~=2.2"
 sphinx_rtd_theme = "*"
-pip = "==18.0"
 
 [dev-packages]
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"

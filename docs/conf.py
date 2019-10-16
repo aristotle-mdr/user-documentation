@@ -21,18 +21,19 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('../python'))
+sys.path.insert(0, os.path.abspath('./_py'))
 
-screenshots_server_path = os.getenv('DOCS_SERVER_URL', 'http://0.0.0.0:8080')
-print(screenshots_server_path)
-screenshots_read_path = '/_static/screenshots'
-screenshots_save_path = os.path.abspath(os.path.join('.',screenshots_read_path[1:]))
-screenshots_logout_path = "/logout"
-screenshots_driver = os.getenv("SELENIUM_DRIVER", "selenium.webdriver.Chrome")
+# screenshots_server_path = os.getenv('DOCS_SERVER_URL', 'http://0.0.0.0:8080')
+# print(screenshots_server_path)
+# screenshots_read_path = '/_generated_screenshots'
+# screenshots_save_path = os.path.abspath(os.path.join('.',screenshots_read_path[1:]))
+# screenshots_logout_path = "/logout"
+# screenshots_driver = os.getenv("SELENIUM_DRIVER", "selenium.webdriver.Chrome")
 
-# Clean up past screenshots
-filelist = [ f for f in os.listdir(screenshots_save_path) if f.endswith(".png") ]
-for f in filelist:
-    os.remove(os.path.join(screenshots_save_path,f))
+# # Clean up past screenshots
+# filelist = [ f for f in os.listdir(screenshots_save_path) if f.endswith(".png") ]
+# for f in filelist:
+#     os.remove(os.path.join(screenshots_save_path,f))
 
 # -- General configuration ------------------------------------------------
 
@@ -46,10 +47,11 @@ for f in filelist:
 extensions = [
     # 'sphinxcontrib.rawfiles',
     'sphinx.ext.todo',
-    'sphinx.ext.githubpages',
-    'selenium_screenshots.screener',
+    # 'selenium_screenshots.screener',
+    'aristotle.screenshot_ignorer',
     'sphinxcontrib.fulltoc',
-    'clean_index.builder'
+    'clean_index.builder',
+    'aristotle.builder'
 ]
 
 # rawfiles = ['CNAME']
@@ -109,6 +111,8 @@ html_theme_path = ["_themes", ]
 import solar_theme
 
 html_theme = 'aristotle_theme'
+html_short_title = "Help"
+html_additional_pages = {'index': 'home.html'}
 
 # html_theme_path = [aristotle_theme.theme_path]
 # Theme options are theme-specific and customize the look and feel of a theme

@@ -1,0 +1,310 @@
+{#
+    basic/layout.html
+    ~~~~~~~~~~~~~~~~~
+
+    Master layout template for Sphinx themes.
+
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+#}
+{%- block doctype -%}{%- if html5_doctype %}
+<!DOCTYPE html>
+{%- else %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{%- endif %}{%- endblock %}
+{%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and
+                         (sidebars != []) %}
+{%- set url_root = pathto('', 1) %}
+{# XXX necessary? #}
+{%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
+{%- if not embedded and docstitle %}
+  {%- set titlesuffix = " &#8212; "|safe + docstitle|e %}
+{%- else %}
+  {%- set titlesuffix = "" %}
+{%- endif %}
+
+{%- macro relbar() %}
+    <nav aria-label="breadcrumb">
+      {# <h3>{{ _('Navigation') }}</h3> #}
+      <ol class="breadcrumb">
+        {%- block rootrellink %}
+        <li class="breadcrumb-item"><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></li>
+        {%- endblock %}
+        {%- for parent in parents %}
+          <li class="breadcrumb-item"><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a></li>
+        {%- endfor %}
+        <li class="breadcrumb-item active">{{ title|striptags|e }}</li>
+        
+        {%- block relbaritems %} {% endblock %}
+      </ol>
+    </nav>
+{%- endmacro %}
+
+{%- macro sidebar() %}
+      {%- if render_sidebar %}
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+          {%- block sidebarlogo %}
+          {%- if logo %}
+            <p class="logo"><a href="{{ pathto(master_doc) }}">
+              <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
+            </a></p>
+          {%- endif %}
+          {%- endblock %}
+          {%- if sidebars != None %}
+            {#- new style sidebar: explicitly include/exclude templates #}
+            {%- for sidebartemplate in sidebars %}
+            {%- include sidebartemplate %}
+            {%- endfor %}
+          {%- else %}
+            {#- old style sidebars: using blocks -- should be deprecated #}
+            {%- block sidebartoc %}
+            {%- include "localtoc.html" %}
+            {%- endblock %}
+            {%- block sidebarrel %}
+            {%- include "relations.html" %}
+            {%- endblock %}
+            {%- block sidebarsourcelink %}
+            {%- include "sourcelink.html" %}
+            {%- endblock %}
+            {%- if customsidebar %}
+            {%- include customsidebar %}
+            {%- endif %}
+            {%- block sidebarsearch %}
+            {# %- include "searchbox.html" % #}
+            {%- endblock %}
+          {%- endif %}
+        </div>
+      </div>
+      {%- endif %}
+{%- endmacro %}
+
+{%- macro script() %}
+    <script type="text/javascript" id="documentation_options" data-url_root="{{ pathto('', 1) }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
+    {%- for js in script_files %}
+    {{ js_tag(js) }}
+    {%- endfor %}
+{%- endmacro %}
+
+{%- macro css() %}
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome JS-->
+    <script defer src="{{ pathto('_static/assets/fontawesome/js/all.min.js', 1) }}"></script>
+    
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.2/styles/atom-one-dark.min.css">
+
+    <!-- Theme CSS -->  
+    <link id="theme-style" rel="stylesheet" href="{{ pathto('_static/assets/css/theme.css', 1) }}">
+
+    {%- for css in css_files %}
+      {%- if css|attr("filename") %}
+    {{ css_tag(css) }}
+      {%- else %}
+    <link rel="stylesheet" href="{{ pathto(css, 1) }}" type="text/css" />
+      {%- endif %}
+    {%- endfor %}
+{%- endmacro %}
+
+{%- if html_tag %}
+{{ html_tag }}
+{%- else %}
+<html {% if language is not none %} lang="{{ language }}"{% endif %}>
+{%- endif %}
+  <head>
+    {%- if not html5_doctype and not skip_ua_compatible %}
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    {%- endif %}
+    {%- if use_meta_charset or html5_doctype %}
+    <meta charset="{{ encoding }}" />
+    {%- else %}
+    <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />
+    {%- endif %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {{- metatags }}
+    {%- block htmltitle %}
+    <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
+    {%- endblock %}
+    {%- block css %}
+    {{- css() }}
+    {%- endblock %}
+    {%- if not embedded %}
+    {%- block scripts %}
+    {{- script() }}
+    {%- endblock %}
+    {%- if pageurl %}
+    <link rel="canonical" href="{{ pageurl }}" />
+    {%- endif %}
+    {%- if use_opensearch %}
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}"
+          href="{{ pathto('_static/opensearch.xml', 1) }}"/>
+    {%- endif %}
+    {%- if favicon %}
+    <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1) }}"/>
+    {%- endif %}
+    {%- endif %}
+{%- block linktags %}
+    {%- if hasdoc('about') %}
+    <link rel="author" title="{{ _('About these documents') }}" href="{{ pathto('about') }}" />
+    {%- endif %}
+    {%- if hasdoc('genindex') %}
+    <link rel="index" title="{{ _('Index') }}" href="{{ pathto('genindex') }}" />
+    {%- endif %}
+    {%- if hasdoc('search') %}
+    <link rel="search" title="{{ _('Search') }}" href="{{ pathto('search') }}" />
+    {%- endif %}
+    {%- if hasdoc('copyright') %}
+    <link rel="copyright" title="{{ _('Copyright') }}" href="{{ pathto('copyright') }}" />
+    {%- endif %}
+    {%- if next %}
+    <link rel="next" title="{{ next.title|striptags|e }}" href="{{ next.link|e }}" />
+    {%- endif %}
+    {%- if prev %}
+    <link rel="prev" title="{{ prev.title|striptags|e }}" href="{{ prev.link|e }}" />
+    {%- endif %}
+{%- endblock %}
+{%- block extrahead %} {% endblock %}
+  </head>
+  {%- block body_tag %}<body class="docs-page">{% endblock %}
+{%- block header %}
+    <header class="header fixed-top">	    
+        <div class="branding docs-branding">
+            <div class="container-fluid position-relative py-2">
+                <div class="docs-logo-wrapper">
+					<button id="docs-sidebar-toggler" class="docs-sidebar-toggler docs-sidebar-visible mr-2 d-xl-none" type="button">
+	                    <span></span>
+	                    <span></span>
+	                    <span></span>
+	                </button>
+	                <div class="site-logo"><a class="navbar-brand" href="{{ pathto(master_doc) }}"><img class="logo-icon mr-2" src="https://d3obyunbje7zuy.cloudfront.net/aristotle_cloud_transparent.4aa09fd8ff58.png" height="55px" alt="logo"><span class="logo-text">Aristotle <span class="text-alt">Help</span></span></a></div>    
+                </div><!--//docs-logo-wrapper-->
+	            <div class="docs-top-utilities d-flex justify-content-end align-items-center">
+	                <div class="top-search-box d-none d-lg-flex">
+		                <form class="search-form" action="{{ pathto('search') }}">
+				            <input type="text" placeholder="Search the docs..." name="q" class="form-control search-input">
+				            <button type="submit" class="btn search-btn" value="Search"><i class="fas fa-search"></i></button>
+				        </form>
+	                </div>
+	
+					<ul class="social-list list-inline mx-md-3 mx-lg-5 mb-0 d-none d-lg-flex">
+						<li class="list-inline-item"><a href="#"><i class="fab fa-github fa-fw"></i></a></li>
+			            <li class="list-inline-item"><a href="#"><i class="fab fa-twitter fa-fw"></i></a></li>
+		                <li class="list-inline-item"><a href="#"><i class="fab fa-slack fa-fw"></i></a></li>
+		                <li class="list-inline-item"><a href="#"><i class="fab fa-product-hunt fa-fw"></i></a></li>
+		            </ul><!--//social-list-->
+		            <a href="https://themes.3rdwavemedia.com/bootstrap-templates/startup/coderdocs-free-bootstrap-4-documentation-template-for-software-projects/" class="btn btn-primary d-none d-lg-flex">Download</a>
+	            </div><!--//docs-top-utilities-->
+            </div><!--//container-->
+        </div><!--//branding-->
+    </header><!--//header-->
+{% endblock %}
+  {%- block html_body_inner %}
+
+    <div class="docs-wrapper">
+	    <div id="docs-sidebar" class="docs-sidebar sidebar-visible">
+		    <div class="top-search-box d-lg-none p-3">
+          <form class="search-form" action="{{ pathto('search') }}">
+	            <input type="text" placeholder="Search the docs..." name="q" class="form-control search-input">
+	            <button type="submit" class="btn search-btn" value="Search"><i class="fas fa-search"></i></button>
+	        </form>
+        </div>
+		    <nav id="docs-nav" class="docs-nav navbar">
+            {%- block sidebar1 %} {{ sidebar() }} {% endblock %}
+        </nav>
+	    </div><!--//docs-sidebar-->
+
+{%- block content %}
+	    <div class="docs-content">
+
+        <div class="container">
+          {%- block document %}
+              <div class="documentwrapper">
+              {%- if render_sidebar %}
+                <div class="bodywrapper">
+              {%- endif %}
+                  <div class="body" role="main">
+                    
+                    {%- block relbar1 %}{{ relbar() }}{% endblock %}
+
+                    {% block body %} {% endblock %}
+                  </div>
+              {%- if render_sidebar %}
+                </div>
+              {%- endif %}
+              </div>
+          {%- endblock %}
+          
+            {%- block sidebar2 %}{% endblock %}
+                <div class="clearer"></div>
+          </div>
+	    </div>
+{%- endblock %}
+{% endblock %}{# html_body_wrapper #}
+
+{%- block footer %}
+      <footer class="footer">
+  	    <div class="container text-center py-5">
+  	        <small class="copyright">Template Copyright &copy; <a href="https://themes.3rdwavemedia.com/" target="_blank">3rd Wave Media</a></small>
+  	        <ul class="social-list list-unstyled pt-4 mb-0">
+  			        <li class="list-inline-item"><a href="#"><i class="fab fa-github fa-fw"></i></a></li> 
+  	            <li class="list-inline-item"><a href="#"><i class="fab fa-twitter fa-fw"></i></a></li>
+  	            <li class="list-inline-item"><a href="#"><i class="fab fa-slack fa-fw"></i></a></li>
+  	            <li class="list-inline-item"><a href="#"><i class="fab fa-product-hunt fa-fw"></i></a></li>
+  	            <li class="list-inline-item"><a href="#"><i class="fab fa-facebook-f fa-fw"></i></a></li>
+  	            <li class="list-inline-item"><a href="#"><i class="fab fa-instagram fa-fw"></i></a></li>
+  	        </ul><!--//social-list-->
+
+            <div class="footer" role="contentinfo">
+            {%- if show_copyright %}
+              {%- if hasdoc('copyright') %}
+                {% trans path=pathto('copyright'), copyright=copyright|e %}&#169; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
+              {%- else %}
+                {% trans copyright=copyright|e %}&#169; Copyright {{ copyright }}.{% endtrans %}
+              {%- endif %}
+            {%- endif %}
+            {%- if last_updated %}
+              {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
+            {%- endif %}
+            {%- if show_sphinx %}
+              {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+            {%- endif %}
+            </div>
+  
+  	    </div>
+      </footer>
+
+  </div>
+</div><!--//docs-wrapper-->
+
+{%- endblock %}
+       
+    <!-- Javascript -->          
+    <script src="assets/plugins/jquery-3.4.1.min.js"></script>
+    <script src="assets/plugins/popper.min.js"></script>
+    <script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>  
+    
+    
+    <!-- Page Specific JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js"></script>
+    <script src="assets/js/highlight-custom.js"></script> 
+    <script src="assets/plugins/jquery.scrollTo.min.js"></script>
+    <script src="assets/plugins/lightbox/dist/ekko-lightbox.min.js"></script> 
+    <script src="assets/js/docs.js"></script> 
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-75504244-2', 'auto');
+    ga('send', 'pageview');
+  
+  </script>
+  </body>
+</html>
